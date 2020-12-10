@@ -5,7 +5,7 @@ from timeit import timeit
 
 parser = argparse.ArgumentParser(description="Benchmark a tool.")
 parser.add_argument('num', type=int, nargs='?', help="Number of times to run command")
-parser.add_argument('command', type=str, nargs='*',
+parser.add_argument('command', type=str, nargs=1,
                     help="The command to benchmark, e.g. \"cd ../solver && solv -arg a -foo b -bar z\"")
 
 
@@ -22,7 +22,6 @@ def bench(args):
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    # args.command = "cargo run --package atl-checker --bin atl-checker -- solver --formula benches/lcgs/Mexican_Standoff/Mexican_Standoff_p1_is_alive_till_he_aint.json --model benches/lcgs/Mexican_Standoff/Mexican_Standoff.lcgs --model-type lcgs"
 
     if args.num is not None and args.num > 1:
         stats = {"wall_time": [], "ru_utime": [], "ru_stime": [], "ru_maxrss": []}
