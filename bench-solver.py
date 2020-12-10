@@ -16,7 +16,7 @@ def bench(args):
         stmt=f"subprocess.run('{proc}', shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)",
         setup="import subprocess", number=1)
     stats = getrusage(RUSAGE_CHILDREN)
-    print(f"wall time: {wall_time}, usertime: {stats.ru_utime}, systime: {stats.ru_stime}, peak {stats.ru_maxrss} KiB")
+    print(f"\twall time: {wall_time:.6f}, usertime: {stats.ru_utime:.6f}, systime: {stats.ru_stime:.6f}, peak {stats.ru_maxrss:.6f} KiB")
     return wall_time, stats.ru_utime, stats.ru_stime, stats.ru_maxrss
 
 
@@ -36,6 +36,6 @@ if __name__ == '__main__':
         stats["ru_utime"] = statistics.mean(stats["ru_utime"])
         stats["ru_stime"] = statistics.mean(stats["ru_stime"])
         stats["ru_maxrss"] = max(stats["ru_maxrss"])
-        print(f"\nResults: Over {args.num} runs; avg walltime: {stats['wall_time']:.4f}, avg usertime: {stats['ru_utime']:.4f}, avg systime: {stats['ru_stime']:.4f}, max peak {stats['ru_maxrss']} KiB")
+        print(f"\nResults: Over {args.num} runs; avg walltime: {stats['wall_time']:.6f}, avg usertime: {stats['ru_utime']:.6f}, avg systime: {stats['ru_stime']:.6f}, max peak {stats['ru_maxrss']} KiB")
     else:
         bench(args)
