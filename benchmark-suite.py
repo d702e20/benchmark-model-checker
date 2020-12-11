@@ -1,20 +1,35 @@
 import subprocess
+import os
 
 # Thread count combinations to use [1, 2, 4, ... , 32]
 THREADS = [pow(2, x) for x in range(0, 6)]
-LCGS_PROGRAMS = [{"program_path": "foo", "formula_path": "bar", "model-type": "lcgs"},
-                 {"program_path": "foo", "formula_path": "bar", "model-type": "lcgs"}]
 
-# Denote test programs, e.g. 'atl_checker solver --option foo', omit any formula and model arguments here
-ENVS = ["ls solver", "ls prism"]
+ATL_SOLVER_PATH = "/some/path/atl-solver --option --"
+ATL_SOLVER_PROGRAMS = [{"program_path": "foo", "formula_path": "bar", "model-type": "lcgs"},
+                       {"program_path": "foo", "formula_path": "bar", "model-type": "lcgs"}]
 
-# subprocess.run('python bench-solver.py 3 "cd ../OnTheFlyATL/ && cargo run --package atl-checker --bin atl-checker -- solver --formula benches/lcgs/Mexican_Standoff/Mexican_Standoff_p1_is_alive_till_he_aint.json --model benches/lcgs/Mexican_Standoff/Mexican_Standoff.lcgs --model-type lcgs"', shell=True)
-# subprocess.run("ls", shell=True)
+PRISM_PATH = "/some/path/prism-games --option --"
+PRISM_PROGRAMS = [{"program_path": "foo", "formula_path": "bar", "model-type": "lcgs"},
+                  {"program_path": "foo", "formula_path": "bar", "model-type": "lcgs"}]
 
-for env in ENVS:
-    for proc in LCGS_PROGRAMS:
-        for thread in THREADS:
-            print(f"Running benchmark for env: {env}, program: {proc}, thread count: {thread}")
+
+# make logdir
+os.makedirs("logs", exist_ok=True)
+
+# setup for atl_solver
+for proc in ATL_SOLVER_PROGRAMS:
+    for thread in THREADS:
+        print(f"Running benchmark for atl_solver, program: {proc}, thread count: {thread}")
+        with open(f"logs/{proc['program_path']}-{proc['formula_path']}-{thread}_threads.txt", "w+") as f:
             subprocess.run(
-                f'{env} --model path/to/{proc["program_path"]} --formula path/to/{proc["formula_path"]} --model-type {proc["model-type"]}',
-                shell=True)
+                f' --model path/to/{proc["program_path"]} --formula path/to/{proc["formula_path"]} --model-type {proc["model-type"]}',
+                stdout=f, shell=True)
+
+# setup for prism
+for proc in PRISM_PROGRAMS:
+    for thread in THREADS:
+        print(f"Running benchmark for prism, program: {proc}, thread count: {thread}")
+        with open(f"logs/{proc['program_path']}-{proc['formula_path']}-{thread}_threads.txt", "w+") as f:
+            subprocess.run(
+                f'prism-binary --model path/to/{proc["program_path"]} --formula path/to/{proc["formula_path"]}',
+                stdout=f, shell=True)
