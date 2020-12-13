@@ -3,7 +3,6 @@ import os
 
 # Thread count combinations to use [1, 2, 4, ... , 32]
 THREADS = [pow(2, x) for x in range(0, 6)]
-
 # Setup programs and examples to benchmark
 ATL_SOLVER_PATH = "cd ../OnTheFlyATL && cargo run --package atl-checker --bin atl-checker -- solver"
 ATL_SOLVER_PROGRAMS = [{"model": "foo", "formula": "bar"},
@@ -26,13 +25,10 @@ os.makedirs("logs", exist_ok=True)
 for proc in ATL_SOLVER_PROGRAMS:
     for threads in THREADS:
         print(f"Running benchmark for atl_solver, program: {proc}, thread count: {threads}")
-        with open(f"logs/{proc['model']}-{proc['formula']}-{threads}_threads.txt", "w+") as f:
-            # with open(f"logs/{proc['model']}-{proc['formula']}-{threads}_threads.txt", "w+") as f:
-            # Setup the program to bench, such that the command reads 'python(3) bench-solver.py "program"'
-            subprocess.run(
-                f'python bench-solver.py \"{ATL_SOLVER_PATH} --model {ATL_SOLVER_PROGRAMS_PATH}/{proc["model"]} --formula '
-                f'{ATL_SOLVER_PROGRAMS_PATH}/{proc["formula"]} --model-type lcgs --threads {threads}\"',
-                stdout=f, shell=True)
+        # Setup the program to bench, such that the command reads 'python(3) bench-solver.py "program"'
+        subprocess.run(
+            f'python bench-solver.py \"{ATL_SOLVER_PATH} --model {ATL_SOLVER_PROGRAMS_PATH}/{proc["model"]} --formula '
+            f'{ATL_SOLVER_PROGRAMS_PATH}/{proc["formula"]} --model-type lcgs --threads {threads}\"', shell=True)
 
 exit(0)  # FIXME: prism not yet setup
 # setup for prism
