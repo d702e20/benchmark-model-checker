@@ -16,7 +16,8 @@ def bench(args):
         stmt=f"subprocess.run('{proc}', shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)",
         setup="import subprocess", number=1)
     stats = getrusage(RUSAGE_CHILDREN)
-    print(f"\twall time: {wall_time:.6f}, usertime: {stats.ru_utime:.6f}, systime: {stats.ru_stime:.6f}, peak {stats.ru_maxrss:.6f} KiB")
+    #print(f"\twall time: {wall_time:.6f}, usertime: {stats.ru_utime:.6f}, systime: {stats.ru_stime:.6f}, peak {stats.ru_maxrss:.6f} KiB")
+    print(f"{wall_time:.6f}, {stats.ru_utime:.6f}, {stats.ru_stime:.6f}, {stats.ru_maxrss:.6f}")
     return wall_time, stats.ru_utime, stats.ru_stime, stats.ru_maxrss
 
 
