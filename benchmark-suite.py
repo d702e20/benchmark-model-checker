@@ -28,8 +28,9 @@ PRISM_PROGRAMS = [{"model": "foo", "formula": "bar"},
 # setup for atl_solver
 for proc in ATL_SOLVER_PROGRAMS:
     for threads in THREADS:
-        print(f"Running benchmark for atl_solver, program: {proc}, thread count: {threads}")
         # Setup the program to bench, such that the command reads 'python(3) bench-solver.py "program"'
+        model_name = proc['model'].split('_')
+        print(f"mexi_{model_name[2]}_{model_name[3][:3]}, {proc['formula']}, {threads}t")
         subprocess.run(
             f'python3 ~/bench/bench-solver/bench-solver.py \"{ATL_SOLVER_PATH} --model {ATL_SOLVER_PROGRAMS_PATH}/{proc["model"]} --formula '
             f'{ATL_SOLVER_PROGRAMS_PATH}/{proc["formula"]} --model-type lcgs --threads {threads}\"', shell=True)
