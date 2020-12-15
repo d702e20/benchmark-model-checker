@@ -11,13 +11,10 @@ parser.add_argument('command', type=str, nargs=1,
 
 def bench(args):
     proc = ''.join(args.command)
-    print("Running: " + proc)
     wall_time = timeit(
         stmt=f"subprocess.run('{proc}', shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)",
         setup="import subprocess", number=1)
     stats = getrusage(RUSAGE_CHILDREN)
-    #print(f"\twall time: {wall_time:.6f}, usertime: {stats.ru_utime:.6f}, systime: {stats.ru_stime:.6f}, peak {stats.ru_maxrss:.6f} KiB")
-    print(f"{wall_time:.6f}, {stats.ru_utime:.6f}, {stats.ru_stime:.6f}, {stats.ru_maxrss:.6f}")
     return wall_time, stats.ru_utime, stats.ru_stime, stats.ru_maxrss
 
 
@@ -34,9 +31,11 @@ if __name__ == '__main__':
             stats["ru_maxrss"].append(ru_maxrss)
 
         stats["wall_time"] = statistics.mean(stats["wall_time"])
-        stats["ru_utime"] = statistics.mean(stats["ru_utime"])
-        stats["ru_stime"] = statistics.mean(stats["ru_stime"])
+        stats["ru_utime"] = statistics.mean(stats["ru_utime"]) / args.num # ru_u/stime is accumulative across runs
+        stats["ru_stime"] = statistics.mean(stats["ru_stime"]) / args.num
         stats["ru_maxrss"] = max(stats["ru_maxrss"])
-        print(f"\nResults: Over {args.num} runs; avg walltime: {stats['wall_time']:.6f}, avg usertime: {stats['ru_utime']:.6f}, avg systime: {stats['ru_stime']:.6f}, max peak {stats['ru_maxrss']} KiB")
+        print(f"{stats['wall_time']:.6f},{stats['ru_utime']:.6f},{stats['ru_stime']:.6f},{stats['ru_maxrss']:.6f}")
     else:
-        bench(args)
+        wall_time, ru_utime, ru_stime, ru_maxrss = bench(args)
+        print(f"{wall_time:.6f},{ru_utime:.6f},{ru_stime:.6f},{ru_maxrss:.6f}")
+    

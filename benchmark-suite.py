@@ -3,7 +3,7 @@ import os
 
 # Thread count combinations to use [1, 2, 4, ... , 32]
 THREADS = [pow(2, x) for x in range(0, 7)]
-
+THREADS = [1,2,3,4,5,6,7,8,9,10]
 # Setup programs and examples to benchmark
 ATL_SOLVER_PATH = "~/bench/OnTheFlyATL/target/release/atl-checker solver"
 ATL_SOLVER_PROGRAMS_PATH = "~/bench/OnTheFlyATL/docs/lcgs/working-examples/Mexican_Standoff"
@@ -30,7 +30,7 @@ for proc in ATL_SOLVER_PROGRAMS:
     for threads in THREADS:
         # Setup the program to bench, such that the command reads 'python(3) bench-solver.py "program"'
         model_name = proc['model'].split('_')
-        print(f"mexi_{model_name[2]}_{model_name[3][:3]}, {proc['formula']}, {threads}t")
+        print(f"mexi,{model_name[2]},{model_name[3][:3]},{proc['formula']},{threads}")
         subprocess.run(
             f'python3 ~/bench/bench-solver/bench-solver.py \"{ATL_SOLVER_PATH} --model {ATL_SOLVER_PROGRAMS_PATH}/{proc["model"]} --formula '
             f'{ATL_SOLVER_PROGRAMS_PATH}/{proc["formula"]} --model-type lcgs --threads {threads}\"', shell=True)
