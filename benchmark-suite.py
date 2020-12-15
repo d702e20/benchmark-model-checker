@@ -30,9 +30,9 @@ for proc in ATL_SOLVER_PROGRAMS:
     for threads in THREADS:
         # Setup the program to bench, such that the command reads 'python(3) bench-solver.py "program"'
         model_name = proc['model'].split('_')
-        print(f"mexi,{model_name[2]},{model_name[3][:3]},{proc['formula']},{threads}")
+        print(f"mexi,{model_name[2]},{model_name[3][:1]},{proc['formula']},{threads}")
         subprocess.run(
-            f'python3 ~/bench/bench-solver/bench-solver.py \"{ATL_SOLVER_PATH} --model {ATL_SOLVER_PROGRAMS_PATH}/{proc["model"]} --formula '
+            f'python3 ~/bench/bench-solver/bench-solver.py 10 \"{ATL_SOLVER_PATH} --model {ATL_SOLVER_PROGRAMS_PATH}/{proc["model"]} --formula '
             f'{ATL_SOLVER_PROGRAMS_PATH}/{proc["formula"]} --model-type lcgs --threads {threads}\"', shell=True)
 
 exit(0)  # FIXME: prism not yet setup
