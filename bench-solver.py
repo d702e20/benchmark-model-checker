@@ -34,8 +34,8 @@ if __name__ == '__main__':
         stats["ru_utime"] = statistics.mean(stats["ru_utime"]) / args.num # ru_u/stime is accumulative across runs
         stats["ru_stime"] = statistics.mean(stats["ru_stime"]) / args.num
         stats["ru_maxrss"] = max(stats["ru_maxrss"])
-        print(f"{stats['wall_time']:.6f},{stats['ru_utime']:.6f},{stats['ru_stime']:.6f},{stats['ru_maxrss']:.6f}")
+        print(f"{stats['wall_time']:.6f},{stats['ru_utime']:.6f},{stats['ru_stime']:.6f},{stats['ru_maxrss']:.6f}", flush=True)
     else:
         wall_time, ru_utime, ru_stime, ru_maxrss = bench(args)
-        print(f"{wall_time:.6f},{ru_utime:.6f},{ru_stime:.6f},{ru_maxrss:.6f}")
+        print(f"{wall_time:.6f},{ru_utime:.6f},{ru_stime:.6f},{ru_maxrss:.6f}", flush=True)
     
