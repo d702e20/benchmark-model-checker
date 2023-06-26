@@ -1,0 +1,25 @@
+name, model, formula
+mexi_3p_3hp_survive,mexican_standoff/mexican_standoff_3p_3hp.lcgs,mexican_standoff/can_p1_guarantee_to_survive_FALSE.json
+mexi_5p_1hp_survive,mexican_standoff/mexican_standoff_5p_1hp.lcgs,mexican_standoff/can_p1_guarantee_to_survive_FALSE.json
+ttt1,tic_tac_toe/tic_tac_toe.lcgs,tic_tac_toe/can_cross_avoid_lose_TRUE.json
+ttt2,tic_tac_toe/tic_tac_toe.lcgs,tic_tac_toe/can_cross_guarantee_tie_TRUE.json
+ttt3,tic_tac_toe/tic_tac_toe.lcgs,tic_tac_toe/can_cross_guarantee_win_FALSE.json
+ttt4,tic_tac_toe/tic_tac_toe.lcgs,tic_tac_toe/can_nought_avoid_lose_TRUE.json
+ttt5,tic_tac_toe/tic_tac_toe.lcgs,tic_tac_toe/can_nought_guarantee_win_FALSE.json
+pa1_3proc,peterson/3/peterson_03.lcgs,peterson/p0_eventually_get_access_if_requested_TRUE.json
+pa2_3proc,peterson/3/peterson_03.lcgs,peterson/p0_eventually_reach_CS_TRUE.json
+pa3_3proc,peterson/3/peterson_03.lcgs,peterson/3/ensure_mutual_exclusion_TRUE_03.json
+pa4_3proc,peterson/3/peterson_03.lcgs,peterson/3/multiple_in_CS_FALSE_03.json
+pa5_3proc,peterson/3/peterson_03.lcgs,peterson/3/never_reach_deadlock_TRUE_03.json
+pa1_4proc,peterson/4/peterson_04.lcgs,peterson/p0_eventually_get_access_if_requested_TRUE.json
+pa2_4proc,peterson/4/peterson_04.lcgs,peterson/p0_eventually_reach_CS_TRUE.json
+pa3_4proc,peterson/4/peterson_04.lcgs,peterson/4/ensure_mutual_exclusion_TRUE_04.json
+pa4_4proc,peterson/4/peterson_04.lcgs,peterson/4/multiple_in_CS_FALSE_04.json
+pa5_4proc,peterson/4/peterson_04.lcgs,peterson/4/never_reach_deadlock_TRUE_04.json
+pa1_9proc,peterson/9/peterson_09.lcgs,peterson/p0_eventually_get_access_if_requested_TRUE.json
+rps1,rock_paper_scissors/rock_paper_scissors.lcgs,rock_paper_scissors/p1_never_lose_FALSE.json
+rps2,rock_paper_scissors/rock_paper_scissors.lcgs,rock_paper_scissors/p1_can_win_eventually_FALSE.json
+mp1,matching_pennies/matching_pennies_game.lcgs,matching_pennies/can_odd_win_round_eventually_FALSE.json
+mp2,matching_pennies/matching_pennies_game.lcgs,matching_pennies/can_they_guarantee_that_odd_always_has_larger_sum_TRUE.json
+mp3,matching_pennies/matching_pennies_game.lcgs,matching_pennies/can_they_win_simultaneously_FALSE.json
+

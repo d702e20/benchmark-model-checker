@@ -1,68 +1,56 @@
 import subprocess
-import os
-import threading
+from datetime import datetime
+import pandas as pd
+import matplotlib
+
+# VARIABLES
+SUITE = "suite.csv"
+
+def strip(text):
+    try:
+        return text.strip()
+    except AttributeError:
+        return text
+
 
 # Thread count combinations to use [1, 2, 4, ... , 32]
-THREADS = [pow(2, x) for x in range(0, 7)]
-THREADS = [n for n in range(1,65)]
+THREADS = [pow(2, x) for x in range(0, 6)]
 print(THREADS)
-#THREADS = [1,2,3,4,5,6,7,8,9,10]
-# Setup programs and examples to benchmark
-ATL_SOLVER_PATH = "~/bench/OnTheFlyATL/target/release/atl-checker solver"
-ATL_SOLVER_PROGRAMS_PATH = "~/bench/OnTheFlyATL/docs/lcgs/working-examples/Mexican_Standoff"
-ATL_SOLVER_PROGRAMS = [
-    {"model": "Mexican_Standoff_3_1hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_2hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_3hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_4_1hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_4_2hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_4_3hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_5_1hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_5_2hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_5_3hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"}
-    ]
 
-ATL_SOLVER_PROGRAMS = [
-    {"model": "Mexican_Standoff_5_4hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"}]
+CGAAL_DIR = "../CGAAL/"
+CGAAL_EXAMPLES_DIR = "../CGAAL/lcgs-examples/"
+CGAAL_BIN = "../CGAAL/target/release/atl-checker-cli"
 
-ATL_SOLVER_PROGRAMS = [
-    {"model": "Mexican_Standoff_3_1hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_2hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_3hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_4hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_5hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_6hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_7hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_8hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_9hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"},
-    {"model": "Mexican_Standoff_3_10hp.lcgs", "formula": "Mexican_Standoff_p1_is_alive_till_he_aint.json"}]
+# compile solver if not already done
+# subprocess.run(f"cd {CGAAL_DIR} && cargo build --release", shell=True)
 
-PRISM_PATH = "/some/path/prism-games --option --"
-PRISM_PROGRAMS_PATH = "some/path"
-PRISM_PROGRAMS = [{"model": "foo", "formula": "bar"},
-                  {"model": "foo", "formula": "bar"}]
+# setup dataframe to store results
+df = pd.DataFrame(columns=['name', 'model', 'formula', 'threads', 'time_s', 'memory_MB', 'runs'])
 
-# number of runs to get average results for
-RUNS = 10
+# read in suite from csv
+suite = pd.read_csv(SUITE, skipinitialspace=True, converters={'name': strip, 'model': strip, 'formula': strip})
 
-
-# print header
-print("model,player,health,formula,threads,wall,user,sys,peak_mem")
-
-# setup for atl_solver
-for proc in ATL_SOLVER_PROGRAMS:
+# benchmark each program in suite
+for index, row in suite.iterrows():
     for threads in THREADS:
-        # Setup the program to bench, such that the command reads 'python(3) bench-solver.py "program"'
-        model_name = proc['model'].split('_')
-        print(f"mexi,{model_name[2]},{model_name[3][:1]},{proc['formula']},{threads},", end='', flush=True)
-        subprocess.run(
-            f'python3 ~/bench/bench-solver/bench-solver.py {RUNS} \"{ATL_SOLVER_PATH} --model {ATL_SOLVER_PROGRAMS_PATH}/{proc["model"]} --formula '
-            f'{ATL_SOLVER_PROGRAMS_PATH}/{proc["formula"]} --model-type lcgs --threads {threads}\"', shell=True)
+        print(f"{row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'")
 
-exit(0)  # FIXME: prism not yet setup
-# setup for prism
-for proc in PRISM_PROGRAMS:
-    for threads in THREADS:
-        print(f"Running benchmark for prism, program: {proc}, thread count: {threads}")
-        subprocess.run(
-            f'python3 ~/bench/bench-solver/bench-solver.py prism-binary --model path/to/{proc["model"]} --formula path/to/{proc["formula"]}', shell=True)
+        # subprocess.run('python3 bench-solver.py "sleep 0.2" ', shell=True)
+        proc = subprocess.run(
+            f'python3 bench-solver.py "'
+            f'{CGAAL_BIN} solver '
+            f'-f {CGAAL_EXAMPLES_DIR}{row["formula"]} '
+            f'-m {CGAAL_EXAMPLES_DIR}{row["model"]} '
+            f'--threads {threads} "',
+            shell=True, check=True, capture_output=True, text=True)
+        out = [e.strip() for e in proc.stdout.split(',')]
+        # add row to df
+        df.loc[len(df)] = [row['name'], row['model'], row['formula'], threads, out[0], out[1], out[2]]
+
+        print(proc.stdout.strip())
+
+df.to_csv(f'{SUITE.strip(".")[0]}-{datetime.now().strftime("%Y-%m-%d_%H-%M")}.csv', index=False)
+
+#df.groupby('name').plot(x='threads', y='time_s', kind='line', title='Time (s) vs Threads', subplots=True)
+
+print(df)
