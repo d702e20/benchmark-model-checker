@@ -19,9 +19,9 @@ def strip(text):
 # Thread count combinations to use [1, 2, 4, ... , 32]
 THREADS = [pow(2, x) for x in range(0, 6)]
 
-CGAAL_DIR = "../CGAAL/"
-CGAAL_EXAMPLES_DIR = "../CGAAL/lcgs-examples/"
-CGAAL_BIN = "../CGAAL/target/release/atl-checker-cli"
+CGAAL_DIR = "../cgaal/"
+CGAAL_EXAMPLES_DIR = "../cgaal/lcgs-examples/"
+CGAAL_BIN = "../cgaal/target/release/atl-checker-cli"
 
 # compile solver if not already done (requires that 'cargo' is in PATH of shell which is running this script)
 # subprocess.run(f"cd {CGAAL_DIR} && cargo build --release", stdout=subprocess.PIPE, shell=True)
