@@ -1,10 +1,11 @@
 import subprocess
 from datetime import datetime
 import pandas as pd
-import matplotlib
 
 # VARIABLES
 SUITE = "suite.csv"
+SEARCH_STRATEGY = "lps"
+
 
 def strip(text):
     try:
@@ -15,7 +16,6 @@ def strip(text):
 
 # Thread count combinations to use [1, 2, 4, ... , 32]
 THREADS = [pow(2, x) for x in range(0, 6)]
-print(THREADS)
 
 CGAAL_DIR = "../CGAAL/"
 CGAAL_EXAMPLES_DIR = "../CGAAL/lcgs-examples/"
@@ -35,13 +35,14 @@ for index, row in suite.iterrows():
     for threads in THREADS:
         print(f"{row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'")
 
-        # subprocess.run('python3 bench-solver.py "sleep 0.2" ', shell=True)
         proc = subprocess.run(
             f'python3 bench-solver.py "'
             f'{CGAAL_BIN} solver '
             f'-f {CGAAL_EXAMPLES_DIR}{row["formula"]} '
             f'-m {CGAAL_EXAMPLES_DIR}{row["model"]} '
-            f'--threads {threads} "',
+            f'--threads {threads} '
+            f'--search-strategy {SEARCH_STRATEGY} '
+            f'--quiet"',
             shell=True, check=True, capture_output=True, text=True)
         out = [e.strip() for e in proc.stdout.split(',')]
         # add row to df
@@ -49,8 +50,7 @@ for index, row in suite.iterrows():
 
         print(proc.stdout.strip())
 
-df.to_csv(f'{SUITE.strip(".")[0]}-{datetime.now().strftime("%Y-%m-%d_%H-%M")}.csv', index=False)
+filename = f'{SUITE.strip(".")[0]}-{SEARCH_STRATEGY}-{datetime.now().strftime("%Y-%m-%d_%H-%M")}.csv'
 
-#df.groupby('name').plot(x='threads', y='time_s', kind='line', title='Time (s) vs Threads', subplots=True)
-
-print(df)
+df.to_csv(filename, index=False)
+print("Benchmark done, results written to: " + filename)

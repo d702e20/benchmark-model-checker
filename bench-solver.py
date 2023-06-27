@@ -14,7 +14,7 @@ def bench(args, stats):
     proc = ''.join(args.command)
     try:
         wall_time = timeit(
-            stmt=f"subprocess.run('{proc}', shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)",
+            stmt=f"subprocess.run('{proc}', shell=True, check=True)",
             setup="import subprocess", number=1)
         stats["wall_time_S"].append(wall_time)
         stats["ru_maxrss_MB"].append(getrusage(RUSAGE_CHILDREN).ru_maxrss / 1024)
