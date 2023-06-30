@@ -54,7 +54,7 @@ if error:
 # benchmark each program in suite
 for index, row in suite.iterrows():
     for threads in THREADS:
-        print(f"{row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'")
+        print(f"[{SEARCH_STRATEGY}{index}/{len(suite)}] {row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'")
         try:
             proc = subprocess.run(
                 f'python3 bench-solver.py "'
