@@ -1,9 +1,10 @@
+import os
 import subprocess
 from datetime import datetime
 import pandas as pd
 
 # VARIABLES
-SUITE = "suite.csv"
+SUITE = "criterion-suite.csv"
 SEARCH_STRATEGY = "lps"
 SUBCMD = SEARCH_STRATEGY if SEARCH_STRATEGY == "global" else "solver"
 SEARCH_STRATEGY_ARG = "" if SEARCH_STRATEGY == "global" else "--search-strategy"
@@ -32,6 +33,24 @@ df = pd.DataFrame(columns=['name', 'model', 'formula', 'threads', 'time_s', 'mem
 # read in suite from csv
 suite = pd.read_csv(SUITE, skipinitialspace=True, converters={'name': strip, 'model': strip, 'formula': strip})
 
+error = False
+for i, test in suite.iterrows():
+    try:
+        os.stat(CGAAL_EXAMPLES_DIR + test['model'])
+    except FileNotFoundError:
+        error = True
+        print(f"ERROR: Could not find '{test['model']}' in '{CGAAL_EXAMPLES_DIR}'.")
+
+    try:
+        os.stat(CGAAL_EXAMPLES_DIR + test['formula'])
+    except FileNotFoundError:
+        error = True
+        print(f"ERROR: Could not find '{test['formula']}' in '{CGAAL_EXAMPLES_DIR}'.")
+
+if error:
+    print(f"Please fix the above errors in {SUITE}.")
+    exit(1)
+
 # benchmark each program in suite
 for index, row in suite.iterrows():
     for threads in THREADS:
@@ -55,7 +74,7 @@ for index, row in suite.iterrows():
             print(f"Failed to start bench. Error: {e}")
             continue
 
-filename = f'{SUITE.strip(".")[0]}-{SEARCH_STRATEGY}-{datetime.now().strftime("%Y-%m-%d_%H-%M")}.csv'
+filename = f'{SUITE.split(".")[0]}-{SEARCH_STRATEGY}-{datetime.now().strftime("%Y-%m-%d_%H-%M")}.csv'
 
 df.to_csv(filename, index=False)
 print("Benchmark done, results written to: " + filename)
