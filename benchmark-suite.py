@@ -4,12 +4,18 @@ from datetime import datetime
 import pandas as pd
 
 # VARIABLES
-SUITE = "criterion-suite.csv"
-SEARCH_STRATEGIES = ["bfs", "dfs", "los", "lps", "dhs", "ihs", "lrs", "global"]
+PRISM = True
+SUITE = "prism-suite.csv"
+# choice of ["bfs", "dfs", "los", "lps", "dhs", "ihs", "lrs", "global"]
+SEARCH_STRATEGIES = ["bfs", "dfs", "los", "lps", "dhs", "ihs", "lrs", "global"] if not PRISM else ["none"]
 
 for SEARCH_STRATEGY in SEARCH_STRATEGIES:
     SUBCMD = SEARCH_STRATEGY if SEARCH_STRATEGY == "global" else "solver"
     SEARCH_STRATEGY_ARG = "" if SEARCH_STRATEGY == "global" else "--search-strategy"
+    if PRISM:
+        SEARCH_STRATEGY = "prism"
+
+
     def strip(text):
         try:
             return text.strip()
@@ -18,7 +24,11 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
 
 
     # Thread count combinations to use [1, 2, 4, ... , 32]
-    THREADS = [pow(2, x) for x in range(0, 6)]
+    THREADS = [pow(2, x) for x in range(0, 6)] if not PRISM else ["none"]
+
+    PRISM_DIR = "../prism-games/"
+    PRISM_EXAMPLES_DIR = "../Prism-modeling/benchmarking/"  # fixme
+    PRISM_BIN = "../prism-games/prism/bin/prism"
 
     CGAAL_DIR = "../cgaal/"
     CGAAL_EXAMPLES_DIR = "../cgaal/lcgs-examples/"
@@ -36,16 +46,18 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
     error = False
     for i, test in suite.iterrows():
         try:
-            os.stat(CGAAL_EXAMPLES_DIR + test['model'])
+            os.stat(CGAAL_EXAMPLES_DIR if not PRISM else PRISM_EXAMPLES_DIR + test['model'])
         except FileNotFoundError:
             error = True
-            print(f"ERROR: Could not find '{test['model']}' in '{CGAAL_EXAMPLES_DIR}'.")
+            print(
+                f"ERROR: Could not find '{test['model']}' in '{CGAAL_EXAMPLES_DIR if not PRISM else PRISM_EXAMPLES_DIR}'.")
 
         try:
-            os.stat(CGAAL_EXAMPLES_DIR + test['formula'])
+            os.stat(CGAAL_EXAMPLES_DIR if not PRISM else PRISM_EXAMPLES_DIR + test['formula'])
         except FileNotFoundError:
             error = True
-            print(f"ERROR: Could not find '{test['formula']}' in '{CGAAL_EXAMPLES_DIR}'.")
+            print(
+                f"ERROR: Could not find '{test['formula']}' in '{CGAAL_EXAMPLES_DIR if not PRISM else PRISM_EXAMPLES_DIR}'.")
 
     if error:
         print(f"Please fix the above errors in {SUITE}.")
@@ -54,18 +66,29 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
     # benchmark each program in suite
     for index, row in suite.iterrows():
         for threads in THREADS:
-            print(f"[{SEARCH_STRATEGY}{index}/{len(suite)}] {row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'")
+            print(
+                f"[{SEARCH_STRATEGY}{index}/{len(suite)}] {row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'")
             try:
-                proc = subprocess.run(
-                    f'python3 bench-solver.py "'
-                    f'{CGAAL_BIN} {SUBCMD} '
-                    f'-f {CGAAL_EXAMPLES_DIR}{row["formula"]} '
-                    f'-m {CGAAL_EXAMPLES_DIR}{row["model"]} '
-                    f'--threads {threads} '
-                    f'{SEARCH_STRATEGY_ARG} {"" if SEARCH_STRATEGY == "global" else SEARCH_STRATEGY} '
-                    f'--quiet"',
-                    shell=True, check=True, capture_output=True, text=True)
-                out = [e.strip() for e in proc.stdout.split(',')]
+                if not PRISM:
+                    proc = subprocess.run(
+                        f'python3 bench-solver.py "'
+                        f'{CGAAL_BIN} {SUBCMD} '
+                        f'-f {CGAAL_EXAMPLES_DIR}{row["formula"]} '
+                        f'-m {CGAAL_EXAMPLES_DIR}{row["model"]} '
+                        f'--threads {threads} '
+                        f'{SEARCH_STRATEGY_ARG} {"" if SEARCH_STRATEGY == "global" else SEARCH_STRATEGY} '
+                        f'--quiet"',
+                        shell=True, check=True, capture_output=True, text=True)
+                    out = [e.strip() for e in proc.stdout.split(',')]
+                else:
+                    proc = subprocess.run(
+                        f'python3 bench-solver.py "'
+                        f'{PRISM_BIN} '
+                        f'{PRISM_EXAMPLES_DIR}{row["model"]} '
+                        f'{PRISM_EXAMPLES_DIR}{row["formula"]} ',
+                        shell=True, check=True, capture_output=True, text=True)
+                    out = [e.strip() for e in proc.stdout.split(',')]
+
                 # add row to df
                 df.loc[len(df)] = [row['name'], row['model'], row['formula'], threads, out[0], out[1], out[2]]
 
