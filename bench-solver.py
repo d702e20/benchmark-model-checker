@@ -17,7 +17,6 @@ def bench(args, stats):
             stmt=f"subprocess.run('{proc}', shell=True, check=True)",
             setup="import subprocess", number=1)
         stats["wall_time_S"].append(wall_time)
-        stats["ru_maxrss_MB"].append(getrusage(RUSAGE_CHILDREN).ru_maxrss / 1024)
         return stats
     except Exception as e:
         print(f"Failed to bench with args: '{proc}'. Error: {e}")
