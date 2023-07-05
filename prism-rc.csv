@@ -1,3 +1,4 @@
+name, model, formula
 rc3_1,robot_grid/robot_grid_N3.prism,robot_grid/can_r1_and_r2_swap_with_help_from_r3_FALSE.props
 rc3_2,robot_grid/robot_grid_N3.prism,can_r1_get_past_r2_when_helped_TRUE.props
 rc3_3,robot_grid/robot_grid_N3.prism,robot_grid/exist_path_to_targets_with_no_crashes_TRUE.po
