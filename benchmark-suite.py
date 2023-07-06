@@ -9,12 +9,13 @@ import re
 from datetime import timedelta
 
 # VARIABLES
-PRISM = True
-SUITE = "prism-suite.csv"
+PRISM = False
+SUITE = "cgaal-suite.csv"
 # choice of ["bfs", "dfs", "los", "lps", "dhs", "ihs", "lrs", "global"]
 SEARCH_STRATEGIES = ["bfs", "dfs", "los", "lps", "dhs", "ihs", "lrs", "global"] if not PRISM else ["none"]
+TIMEOUT = 2 * 3600
 
-ENV = 'PATH="/scratch/user@domain.aau.dk/prism-games/jdk/jdk-20.0.1/bin:$PATH"'
+ENV = 'PATH="/scratch/user@cs.aau.dk/prism-games/jdk/jdk-20.0.1/bin:$PATH"'
 
 for SEARCH_STRATEGY in SEARCH_STRATEGIES:
     SUBCMD = SEARCH_STRATEGY if SEARCH_STRATEGY == "global" else "solver"
@@ -39,7 +40,7 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
 
     CGAAL_DIR = "../cgaal/"
     CGAAL_EXAMPLES_DIR = "../cgaal/lcgs-examples/"
-    CGAAL_BIN = "../cgaal/target/release/atl-checker-cli"
+    CGAAL_BIN = "../cgaal/target/release/cgaal"
 
     # compile solver if not already done (requires that 'cargo' is in PATH of shell which is running this script)
     # subprocess.run(f"cd {CGAAL_DIR} && cargo build --release", stdout=subprocess.PIPE, shell=True)
@@ -75,6 +76,8 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
         print(f"Please fix the above errors in {SUITE}.")
         exit(1)
 
+    filename = f'{SUITE.split(".")[0]}-{SEARCH_STRATEGY}-{datetime.now().strftime("%Y-%m-%d_%H-%M")}.csv'
+
     # benchmark each program in suite
     for index, row in suite.iterrows():
         for threads in THREADS:
@@ -82,16 +85,25 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                 f"[{SEARCH_STRATEGY}|{index}/{len(suite)}] {row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'")
             try:
                 if not PRISM:
+                    cmd = f'{CGAAL_BIN} {SUBCMD} ' \
+                          f'-f {CGAAL_EXAMPLES_DIR}{row["formula"]} ' \
+                          f'-m {CGAAL_EXAMPLES_DIR}{row["model"]} ' \
+                          f'--threads {threads} ' \
+                          f'{SEARCH_STRATEGY_ARG} {"" if SEARCH_STRATEGY == "global" else SEARCH_STRATEGY} '
+                    # begin measuring
                     max_mem_before = getrusage(RUSAGE_CHILDREN).ru_maxrss / 1024
                     start_time = time.perf_counter()
-                    proc = subprocess.run(
-                        f'{CGAAL_BIN} {SUBCMD} '
-                        f'-f {CGAAL_EXAMPLES_DIR}{row["formula"]} '
-                        f'-m {CGAAL_EXAMPLES_DIR}{row["model"]} '
-                        f'--threads {threads} '
-                        f'{SEARCH_STRATEGY_ARG} {"" if SEARCH_STRATEGY == "global" else SEARCH_STRATEGY} '
-                        f'--quiet"',
-                        shell=True, check=True, capture_output=True, text=True)
+
+                    proc = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                    try:
+                        proc.communicate(timeout=TIMEOUT)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                        print(f"Bench: {row['name']} timed out after {TIMEOUT}s.")
+                        continue
+
+                    # end measuring
                     end_time = time.perf_counter()
                     max_mem_after = getrusage(RUSAGE_CHILDREN).ru_maxrss / 1024
 
@@ -99,22 +111,35 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                     df.loc[len(df)] = [row['name'], row['model'], row['formula'], threads, end_time - start_time,
                                        max_mem_after - max_mem_before, SEARCH_STRATEGY]
 
-
                 else:
+                    prism_stdout = ""
+
+                    # begin measuring
                     max_mem_before = getrusage(RUSAGE_CHILDREN).ru_maxrss / 1024
                     start_time = time.perf_counter()
-                    proc = subprocess.run(
-                        f'{ENV} '
-                        f'{PRISM_BIN} '
-                        f'{PRISM_EXAMPLES_DIR}{row["model"]} '
-                        f'{PRISM_EXAMPLES_DIR}{row["formula"]} ',
-                        shell=True, check=True, capture_output=True, text=True)
+
+                    cmd = f'{ENV} ' \
+                          f'{PRISM_BIN} ' \
+                          f'{PRISM_EXAMPLES_DIR}{row["model"]} ' \
+                          f'{PRISM_EXAMPLES_DIR}{row["formula"]} '
+
+                    proc = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    try:
+                        prism_stdout, _ = proc.communicate(timeout=TIMEOUT)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                        print(f"Bench: {row['name']} timed out after {TIMEOUT}s.")
+                        continue
+
+                    # end measuring
                     end_time = time.perf_counter()
                     max_mem_after = getrusage(RUSAGE_CHILDREN).ru_maxrss / 1024
+
                     # extract time for model construction and model checking
+                    print(prism_stdout)
                     prism_times = [(line.split()[3], timedelta(seconds=float(re.findall(r'[\d\.\d]+', line)[0]))) for
                                    line in
-                                   proc.stdout.splitlines() if
+                                   prism_stdout.splitlines() if
                                    line.startswith("Time for model")]
                     # add total time
                     prism_times += [('total reported', sum([t[1] for t in prism_times], timedelta(seconds=0)))]
@@ -132,7 +157,7 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                 print(f"Failed to start bench. Error: {e}")
                 continue
 
-    filename = f'{SUITE.split(".")[0]}-{SEARCH_STRATEGY}-{datetime.now().strftime("%Y-%m-%d_%H-%M")}.csv'
+            # save to csv after each bench
+            df.to_csv(filename, index=False)
 
-    df.to_csv(filename, index=False)
     print(f"Benchmark {SEARCH_STRATEGY} on {SUITE} done, results written to: " + filename)
