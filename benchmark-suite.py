@@ -16,6 +16,7 @@ SEARCH_STRATEGIES = ["bfs", "dfs", "los", "lps", "dhs", "ihs", "lrs", "global"] 
 TIMEOUT = 2 * 3600
 
 ENV = 'PATH="/scratch/user@cs.aau.dk/prism-games/jdk/jdk-20.0.1/bin:$PATH"'
+pd.set_option('display.max_colwidth', None)
 
 for SEARCH_STRATEGY in SEARCH_STRATEGIES:
     SUBCMD = SEARCH_STRATEGY if SEARCH_STRATEGY == "global" else "solver"
@@ -160,5 +161,7 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
 
             # save to csv after each bench
             df.to_csv(filename, index=False)
+            print(df.drop(columns=['model', 'formula', 'memory_MB', 'search_strategy'])
+                  .sort_values(by=['time_s'], ascending=False).head(20).to_string())
 
     print(f"Benchmark {SEARCH_STRATEGY} on {SUITE} done, results written to: " + filename)
