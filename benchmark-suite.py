@@ -119,6 +119,7 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                     start_time = time.perf_counter()
 
                     cmd = f'{ENV} ' \
+                          f'_JAVA_OPTIONS="-Xmx32g" ' \
                           f'{PRISM_BIN} ' \
                           f'{PRISM_EXAMPLES_DIR}{row["model"]} ' \
                           f'{PRISM_EXAMPLES_DIR}{row["formula"]} '
