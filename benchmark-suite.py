@@ -101,6 +101,9 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                         proc.communicate(timeout=TIMEOUT)
                     except subprocess.TimeoutExpired:
                         proc.kill()
+                        df.loc[len(df)] = [row['name'], row['model'], row['formula'], threads, TIMEOUT, -1,
+                                           SEARCH_STRATEGY]
+                        df.to_csv(filename, index=False)
                         print(f"Bench: {row['name']} timed out after {TIMEOUT}s.")
                         continue
 
@@ -130,6 +133,8 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                         prism_stdout, _ = proc.communicate(timeout=TIMEOUT)
                     except subprocess.TimeoutExpired:
                         proc.kill()
+                        df.loc[len(df)] = [row['name'], row['model'], row['formula'], TIMEOUT, -1, -1, -1, -1]
+                        df.to_csv(filename, index=False)
                         print(f"Bench: {row['name']} timed out after {TIMEOUT}s.")
                         continue
 
