@@ -1,13 +1,15 @@
 # bench-solver
+Homebrewed runtime benchmarking tool supporting model-checkers (CGAAL)[https://github.com/d702e20/CGAAL/] and (PRISM-games)[https://github.com/prismmodelchecker/prism-games].
 
-Running on Mexican Standoff thrice:
-```
-Running: cd ../OnTheFlyATL/ && cargo run --package atl-checker --bin atl-checker -- solver --formula benches/lcgs/Mexican_Standoff/Mexican_Standoff_p1_is_alive_till_he_aint.json --model benches/lcgs/Mexican_Standoff/Mexican_Standoff.lcgs --model-type lcgs
-wall time: 0.20350737999251578, usertime: 0.904412, systime: 0.076476, peak 22824 KiB
-Running: cd ../OnTheFlyATL/ && cargo run --package atl-checker --bin atl-checker -- solver --formula benches/lcgs/Mexican_Standoff/Mexican_Standoff_p1_is_alive_till_he_aint.json --model benches/lcgs/Mexican_Standoff/Mexican_Standoff.lcgs --model-type lcgs
-wall time: 0.23878169899398927, usertime: 2.070686, systime: 0.126034, peak 23008 KiB
-Running: cd ../OnTheFlyATL/ && cargo run --package atl-checker --bin atl-checker -- solver --formula benches/lcgs/Mexican_Standoff/Mexican_Standoff_p1_is_alive_till_he_aint.json --model benches/lcgs/Mexican_Standoff/Mexican_Standoff.lcgs --model-type lcgs
-wall time: 0.24613207500078715, usertime: 3.637086, systime: 0.220474, peak 23008 KiB
+## Setup
+Define a suite - a collection of tests - in a CSV-file with the columns; name, model, formula. Model and formula are paths relative to the model-checker dirs set in `benchmark-suite.py`. For examples, look in `suites/`.
 
-Results: Over 3 runs; avg walltime: 0.2295, avg usertime: 2.2041, avg systime: 0.1410, max peak 23008 KiB
-```
+Once installation of modelchecker is complete, set binary path, examples path, timeout, and lastly search strategy if applicable.
+
+Finally run `python benchmark-suite.py` where results are written after each test to CSV named by suite-name concatenated with timestamp. This allows for reading results while benchmarks are being run, as some suites may take multiple days.
+
+## Limitations
+1. Measurement of memory by way of using `ru_maxrss` is flawed and may be ignored.
+1. For quick benchmarks (<1s), may have noise in results. Preferably each test should be run for a minimum of some time, and the average of the completed runs be used as result. 
+
+
