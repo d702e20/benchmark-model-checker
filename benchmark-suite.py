@@ -252,4 +252,4 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                     .to_string()
                 )
 
-    print(f"Benchmark {SEARCH_STRATEGY} on {SUITE} done, results written to: " + filename)
+    print(f"Benchmark {SEARCH_STRATEGY} on {SUITE} done, results written to: " + RESULTS_DIR + filename)
