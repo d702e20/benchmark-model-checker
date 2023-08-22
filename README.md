@@ -9,7 +9,7 @@ Once installation of modelchecker is complete, set binary path, examples path, t
 Finally run `python benchmark-suite.py` where results are written after each test to CSV named by suite-name concatenated with timestamp. This allows for reading results while benchmarks are being run, as some suites may take multiple days.
 
 ## Limitations
-1. Measurement of memory by way of using `ru_maxrss` is flawed and may be ignored.
+1. Measurement of memory by way of using `ru_maxrss` in previous tests are flawed and may be ignored. Would be nice to include this, although results upper bound on memory usage exists.
 1. For quick benchmarks (<1s), may have noise in results. Preferably each test should be run for a minimum of some time, and the average of the completed runs be used as result. 
 
 
