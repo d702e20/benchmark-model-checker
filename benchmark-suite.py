@@ -107,6 +107,8 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
             print(
                 f"[{SEARCH_STRATEGY}|{index}/{len(suite)}] {row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'"
             )
+            # save results
+            df.to_csv(RESULTS_DIR + filename, index=False)
             try:
                 if not PRISM:
                     cmd = (
@@ -137,10 +139,8 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                             row["formula"],
                             threads,
                             TIMEOUT,
-                            -1,
                             SEARCH_STRATEGY,
                         ]
-                        df.to_csv(filename, index=False)
                         print(f"Bench: {row['name']} timed out after {TIMEOUT}s.")
                         continue
 
@@ -191,9 +191,7 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                             -1,
                             -1,
                             -1,
-                            -1,
                         ]
-                        df.to_csv(filename, index=False)
                         print(f"Bench: {row['name']} timed out after {TIMEOUT}s.")
                         continue
 
@@ -235,8 +233,6 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                 print(f"Failed to start bench. Error: {e}")
                 continue
 
-            # save to csv after each bench
-            df.to_csv(RESULTS_DIR + filename, index=False)
             if PRISM:
                 print(
                     df.drop(columns=["model", "formula"])
@@ -251,5 +247,9 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
                     .head(20)
                     .to_string()
                 )
+
+
+    # save results
+    df.to_csv(RESULTS_DIR + filename, index=False)
 
     print(f"Benchmark {SEARCH_STRATEGY} on {SUITE} done, results written to: " + RESULTS_DIR + filename)
