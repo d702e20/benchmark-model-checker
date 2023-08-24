@@ -1,0 +1,4 @@
+name,model,formula
+prismlike_rc6_1,robot_grid/prismlike_robot_grid_N6.lcgs,robot_grid/can_r1_and_r2_swap_with_help_from_r3_FALSE.json
+prismlike_rc6_2,robot_grid/prismlike_robot_grid_N6.lcgs,robot_grid/everyone_starts_home_TRUE.json
+prismlike_rc6_3,robot_grid/prismlike_robot_grid_N6.lcgs,robot_grid/exist_path_to_targets_with_no_crashes_TRUE.json
