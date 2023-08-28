@@ -105,7 +105,7 @@ for SEARCH_STRATEGY in SEARCH_STRATEGIES:
     for index, row in suite.iterrows():
         for threads in THREADS:
             print(
-                f"[{SEARCH_STRATEGY}|{index}/{len(suite)}] {row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'"
+                f"{datetime.now().strftime('%d/%m %H:%M')}[{SEARCH_STRATEGY}|{index}/{len(suite)}] {row['name']}/{threads} with model: '{row['model']}' and formula: '{row['formula']}'"
             )
             # save results
             df.to_csv(RESULTS_DIR + filename, index=False)
